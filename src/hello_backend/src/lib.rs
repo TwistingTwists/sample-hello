@@ -21,7 +21,6 @@ impl Paginate for BTreeMap<u32, Todo> {
         self.iter()
             .skip((page_num - 1) * page_size)
             .take(page_size)
-            // .clone()
             .collect()
     }
 }
@@ -87,7 +86,7 @@ fn delete_todo(id: u32) {
     })
 }
 
-// ------- TESTS
+// ------- TESTS -------
 
 #[cfg(test)]
 mod tests {
@@ -154,32 +153,32 @@ mod tests {
         }
     }
 
-    // #[test]
-    // fn test_update_todo() {
-    //     create_todo("Test todo".to_string());
-    //     let mut todo_id = 0;
-    //     TODOS.with(|todos| {
-    //         let map = todos.borrow();
-    //         todo_id = map.keys().next().unwrap().clone();
-    //     });
+    #[test]
+    fn test_update_todo() {
+        create_todo("Test todo".to_string());
+        let mut todo_id = 0;
+        TODOS.with(|todos| {
+            let map = todos.borrow();
+            todo_id = map.keys().next().unwrap().clone();
+        });
 
-    //     update_todo(todo_id, Some("Updated title".to_string()), Some(true));
+        update_todo(todo_id, Some("Updated title".to_string()), Some(true));
 
-    //     let mut updated_todo = TODOS.with(|todos| todos.borrow().get(&todo_id).unwrap().clone());
-    //     assert_eq!(updated_todo.title, "Updated title");
-    //     assert_eq!(updated_todo.completed, true);
-    // }
+        let updated_todo = TODOS.with(|todos| todos.borrow().get(&todo_id).unwrap().clone());
+        assert_eq!(updated_todo.title, "Updated title");
+        assert_eq!(updated_todo.completed, true);
+    }
 
-    // #[test]
-    // fn test_delete_todo() {
-    //     create_todo("Test todo".to_string());
-    //     let mut todo_id = 0;
-    //     TODOS.with(|todos| {
-    //         let map = todos.borrow();
-    //         todo_id = map.keys().next().unwrap().clone();
-    //     });
+    #[test]
+    fn test_delete_todo() {
+        create_todo("Test todo".to_string());
+        let mut todo_id = 0;
+        TODOS.with(|todos| {
+            let map = todos.borrow();
+            todo_id = map.keys().next().unwrap().clone();
+        });
 
-    //     delete_todo(todo_id);
-    //     assert_eq!(TODOS.with(|todos| todos.borrow().len()), 0);
-    // }
+        delete_todo(todo_id);
+        assert_eq!(TODOS.with(|todos| todos.borrow().len()), 0);
+    }
 }
