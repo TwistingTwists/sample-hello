@@ -35,6 +35,7 @@ thread_local! {
 // ------------------------------------
 // CRUD Functions
 // ------------------------------------
+#[ic_cdk::update]
 fn create_todo(title: String) {
     TODOS.with(|todos| {
         let mut map = todos.borrow_mut();
@@ -51,6 +52,7 @@ fn create_todo(title: String) {
     });
 }
 
+#[ic_cdk::query]
 fn read_todos(page_num: usize, page_size: usize) {
     TODOS.with(|todos| {
         let map = todos.borrow();
@@ -66,6 +68,7 @@ fn read_todos(page_num: usize, page_size: usize) {
     });
 }
 
+#[ic_cdk::update]
 fn update_todo(id: u32, title: Option<String>, completed: Option<bool>) {
     TODOS.with(|todos| {
         let mut todos = todos.borrow_mut();
@@ -80,6 +83,7 @@ fn update_todo(id: u32, title: Option<String>, completed: Option<bool>) {
     })
 }
 
+#[ic_cdk::update]
 fn delete_todo(id: u32) {
     TODOS.with(|todos| {
         todos.borrow_mut().remove(&id);
