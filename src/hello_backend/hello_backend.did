@@ -1,7 +1,11 @@
+
+type Result = variant { Ok : vec Todo; Err : TodoError };
+type Result_1 = variant { Ok; Err : TodoError };
 type Todo = record { id : nat64; title : text; completed : bool };
+type TodoError = variant { TodoNotFound : nat64; TodoNotFoundOnPage : nat64 };
 service : {
   create_todo : (text) -> (nat64);
   delete_todo : (nat64) -> ();
-  read_todos : (nat64, nat64) -> (opt vec Todo) query;
-  update_todo : (nat64, opt text, opt bool) -> ();
+  read_todos : (nat64, nat64) -> (Result) query;
+  update_todo : (nat64, text, opt bool) -> (Result_1);
 }

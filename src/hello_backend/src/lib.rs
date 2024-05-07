@@ -118,14 +118,14 @@ fn read_todos(page_num: usize, page_size: usize) -> Result<Vec<Todo>, TodoError>
 }
 
 #[ic_cdk::update]
-fn update_todo(id: u64, title: Option<String>, completed: Option<bool>) -> Result<(), TodoError> {
+fn update_todo(id: u64, title: String, completed: Option<bool>) -> Result<(), TodoError> {
     TODOS.with(|todos| {
         let mut todos_mut = todos.borrow_mut();
         if let Some(mut mutable_todo) = todos_mut.get(&id) {
             let mutable_todo_upd = {
-                if let Some(new_title) = title {
-                    mutable_todo.title = new_title;
-                }
+                // if let Some(new_title) = title {
+                mutable_todo.title = title;
+                // }
                 if let Some(new_completed) = completed {
                     mutable_todo.completed = new_completed;
                 }
@@ -200,7 +200,7 @@ mod tests {
     fn test_update_todo() {
         let todo_id = create_todo("Test todo".to_string());
 
-        let _ = update_todo(todo_id, Some("Updated title".to_string()), Some(true));
+        let _ = update_todo(todo_id, "Updated title".to_string(), Some(true));
 
         let updated_todo = TODOS.with(|todos| todos.borrow().get(&todo_id).unwrap().clone());
         dbg!(updated_todo.clone());
