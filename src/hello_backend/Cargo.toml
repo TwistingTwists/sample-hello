@@ -9,15 +9,17 @@ edition = "2021"
 crate-type = ["cdylib"]
 
 [dependencies]
-candid = "0.10"
-ic-cdk = "0.13"
-ic-cdk-timers = "0.7" # Feel free to remove this dependency if you don't need timers
-# ic-stable-memory = "0.4"
-# serde = {version =  "1.0", features = ["derive"]}
-# ic-cdk-macros = "0.6.8"
 # serde_bytes = "0.11.9"
-# candid_derive = "0.6.0"
-# ic-stable-memory-derive = "0.4.2"
+candid = "0.10"
+candid_derive = "0.6.0"
+ic-cdk = "0.13"
+ic-cdk-macros = "0.6.8"
+# ic-cdk-timers = "0.7" # Feel free to remove this dependency if you don't need timers
+ic-stable-memory = "0.4"
+ic-stable-memory-derive = "0.4.2"
+ic-stable-structures = "0.6.4"
+serde = {version =  "1.0", features = ["derive"]}
+serde_json = "1.0.74"
 
 
 # [features]

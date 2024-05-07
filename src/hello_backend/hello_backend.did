@@ -1,3 +1,7 @@
+type Todo = record { id : nat64; title : text; completed : bool };
 service : {
-    "greet": (text) -> (text) query;
+  create_todo : (text) -> (nat64);
+  delete_todo : (nat64) -> ();
+  read_todos : (nat64, nat64) -> (opt vec Todo) query;
+  update_todo : (nat64, opt text, opt bool) -> ();
 }

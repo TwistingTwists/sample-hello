@@ -1,15 +1,30 @@
 # hello
-Things to consider. 
+#### Things to consider
 
 1. pre-upgrade and post-upgrade hooks to restore state.
-2. use HashMap or BTreeMap?
+[x] use HashMap or BTreeMap? 
 3. Error handling please - thisError and anyhow
-4. Storable trait for serialising data to stablememory
+[ ] Storable trait for serialising data to stablememory
+[] Candid?
 
-Why BTreeMap?
-- Ordered by key
-- O(log n): Lookup/Insertion
+[https://github.com/dfinity/examples/blob/b7e47bf3226f9dd195a622e4ca1fc18c7b1a80f0/rust/icp_transfer/src/icp_transfer_backend/src/lib.rs]
+// Enable Candid export (see https://internetcomputer.org/docs/current/developer-docs/backend/rust/generating-candid)
+ic_cdk::export_candid!();
 
+### Requirements
+1. todo app that needs to scale.
+2. should survive canister restarts 
+
+
+### Thought
+1. canister has heap memory limit of 4GB. avg todo length = 15 chars => 15*4 bytes => 60 bytes. for 3GB memory, one can have ~50mn todos. => not good enough.
+2. canister has stable memory of 400 GB. So, choose to store todos there directly using stable structures.
+3. Why BTreeMap for Todo?
+  - Ordered by key
+  - O(log n): Lookup/Insertion 
+  - need to persist Todo => 
+
+--- 
 
 Welcome to your new hello project and to the Internet Computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
 
