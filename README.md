@@ -23,6 +23,8 @@ ic_cdk::export_candid!();
   - Ordered by key
   - O(log n): Lookup/Insertion 
   - need to persist Todo => 
+4. what if you try to update the todo which doesn't exist?
+  - return some form of error.
 
 --- 
 

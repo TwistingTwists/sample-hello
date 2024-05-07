@@ -2,6 +2,7 @@ use candid::{CandidType, Decode, Deserialize, Encode};
 use ic_stable_structures::memory_manager::{MemoryId, MemoryManager, VirtualMemory};
 use ic_stable_structures::{storable::Bound, DefaultMemoryImpl, StableBTreeMap, Storable};
 use std::{borrow::Cow, cell::RefCell};
+use thiserror::Error;
 
 // Define a struct for Todo items
 #[derive(CandidType, Deserialize, Debug, Clone)]
@@ -27,6 +28,19 @@ impl Paginate for StableBTreeMap<u64, Todo, Memory> {
             .collect()
     }
 }
+
+// ------------------------------------
+// error for update function
+// ------------------------------------
+
+#[derive(Error, Debug, CandidType)]
+pub enum TodoError {
+    #[error("Todo with ID {0} not found")]
+    TodoNotFound(u64),
+    #[error("No todos found on page {0}")]
+    TodoNotFoundOnPage(u64),
+}
+
 // ------------------------------------
 // storage for todos
 // ------------------------------------
@@ -85,7 +99,7 @@ fn create_todo(title: String) -> u64 {
 }
 
 #[ic_cdk::query]
-fn read_todos(page_num: usize, page_size: usize) -> Option<Vec<Todo>> {
+fn read_todos(page_num: usize, page_size: usize) -> Result<Vec<Todo>, TodoError> {
     let page = TODOS.with(|todos| {
         let map = todos.borrow();
         map.get_page(page_num, page_size)
@@ -93,9 +107,9 @@ fn read_todos(page_num: usize, page_size: usize) -> Option<Vec<Todo>> {
 
     if page.is_empty() {
         println!("No todos found on page {}", page_num);
-        None
+        Err(TodoError::TodoNotFoundOnPage(page_num as u64))
     } else {
-        Some(page.into_iter().map(|(_, todo)| todo).collect())
+        Ok(page.into_iter().map(|(_, todo)| todo).collect())
         // println!("--- Page {} ---", page_num);
         // for (id, todo) in page {
         //     println!("{}: {} (Completed: {})", id, todo.title, todo.completed);
@@ -104,20 +118,24 @@ fn read_todos(page_num: usize, page_size: usize) -> Option<Vec<Todo>> {
 }
 
 #[ic_cdk::update]
-fn update_todo(id: u64, title: Option<String>, completed: Option<bool>) {
+fn update_todo(id: u64, title: Option<String>, completed: Option<bool>) -> Result<(), TodoError> {
     TODOS.with(|todos| {
         let mut todos_mut = todos.borrow_mut();
-        let mut mutable_todo = todos_mut.get(&id).unwrap();
-        let mutable_todo_upd = {
-            if let Some(new_title) = title {
-                mutable_todo.title = new_title;
-            }
-            if let Some(new_completed) = completed {
-                mutable_todo.completed = new_completed;
-            }
-            mutable_todo
-        };
-        todos_mut.insert(id, mutable_todo_upd);
+        if let Some(mut mutable_todo) = todos_mut.get(&id) {
+            let mutable_todo_upd = {
+                if let Some(new_title) = title {
+                    mutable_todo.title = new_title;
+                }
+                if let Some(new_completed) = completed {
+                    mutable_todo.completed = new_completed;
+                }
+                mutable_todo
+            };
+            todos_mut.insert(id, mutable_todo_upd);
+            Ok(())
+        } else {
+            Err(TodoError::TodoNotFound(id))
+        }
     })
 }
 
@@ -160,7 +178,7 @@ mod tests {
 
         // num_pages + 1 : for covering the case when page_num exceeds the bounds.
         for page_num in 1..=num_pages + 1 {
-            if let Some(page_todos) = read_todos(page_num, page_size) {
+            if let Ok(page_todos) = read_todos(page_num, page_size) {
                 assert_eq!(
                     page_todos.len(),
                     if page_num > num_pages {
@@ -182,7 +200,7 @@ mod tests {
     fn test_update_todo() {
         let todo_id = create_todo("Test todo".to_string());
 
-        update_todo(todo_id, Some("Updated title".to_string()), Some(true));
+        let _ = update_todo(todo_id, Some("Updated title".to_string()), Some(true));
 
         let updated_todo = TODOS.with(|todos| todos.borrow().get(&todo_id).unwrap().clone());
         dbg!(updated_todo.clone());
